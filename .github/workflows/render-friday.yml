@@ -1,0 +1,23 @@
+name: Render ClinicWell Friday greeting
+on:
+  push:
+    paths:
+      - 'tools/render_friday.py'
+      - '.github/workflows/render-friday.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y fonts-noto-core
+      - run: pip install pillow arabic-reshaper python-bidi
+      - run: python tools/render_friday.py
+      - name: Commit generated image
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posts/clinicwell-friday-rendered-1080x1350.png
+          git diff --cached --quiet || (git commit -m "Render Friday greeting image" && git push)
